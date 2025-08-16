@@ -1,6 +1,10 @@
+// middleware.ts
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
+
+const SECRET = process.env.NEXTAUTH_SECRET ?? "";           // must be set in Vercel
+const SALT = process.env.AUTH_SALT ?? "next-auth";          // safe default if not provided
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
@@ -8,8 +12,8 @@ export async function middleware(req: NextRequest) {
   const isLogin = pathname === "/admin/login";
 
   if (isAdminPath && !isLogin) {
-    // Let NextAuth read NEXTAUTH_SECRET from env; no type issue.
-    const token = await getToken({ req });
+    // v5 types expect secret + salt; pass both & cast to satisfy strict types
+    const token = await getToken({ req: req as any, secret: SECRET, salt: SALT } as any);
     if (!token) {
       const url = req.nextUrl.clone();
       url.pathname = "/admin/login";
