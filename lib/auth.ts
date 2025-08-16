@@ -1,5 +1,4 @@
 import { prisma } from "@/lib/db";
-import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
 export const authOptions = {
