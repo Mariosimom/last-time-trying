@@ -8,9 +8,12 @@ export async function middleware(req: NextRequest) {
   const isLogin = pathname === "/admin/login";
 
   if (isAdminPath && !isLogin) {
-    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+    // Let NextAuth read NEXTAUTH_SECRET from env; no type issue.
+    const token = await getToken({ req });
     if (!token) {
-      const url = new URL("/admin/login", req.url);
+      const url = req.nextUrl.clone();
+      url.pathname = "/admin/login";
+      url.searchParams.set("callbackUrl", pathname);
       return NextResponse.redirect(url);
     }
   }
